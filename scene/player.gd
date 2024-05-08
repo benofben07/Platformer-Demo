@@ -21,8 +21,15 @@ var was_dashing: bool = false
 var last_facing_direction: float = 1.0
 var dashing_direction: float = 1.0
 var dash_ending_animation_in_progress: bool = false
+var alive: bool = true
 
 func _physics_process(delta):
+	if alive:
+		handle_movement(delta)
+	
+	move_and_slide()
+	
+func handle_movement(delta: float):
 	if not is_on_floor():
 		# gravity
 		velocity.y += gravity * delta
@@ -36,11 +43,10 @@ func _physics_process(delta):
 			
 		jumping = false
 		double_jumping = false
-
-	# dashing stops at this frame
+		# dashing stops at this frame
 	if dashing and dash_timer.is_stopped():
 		dashing = false
-
+	
 	var jumping_pressed = Input.is_action_just_pressed("jump")
 	var dashing_pressed = Input.is_action_just_pressed("dash")
 	var double_jumping_pressed: bool = false
@@ -62,8 +68,7 @@ func _physics_process(delta):
 		
 	# movement
 	var direction = Input.get_axis("move_left", "move_right")
-
-	# dont smooth with controller movement
+		# dont smooth with controller movement
 	if direction < 0:
 		direction = -1
 	elif direction > 0:
@@ -87,21 +92,21 @@ func _physics_process(delta):
 		dash_ending_animation_in_progress = false
 	elif not dashing:
 		velocity.x = move_toward(velocity.x, 0, speed)
-
+	
 	update_sprite_animation(direction, jumping_pressed, double_jumping_pressed, dashing_pressed)
 	flip_character_sprite_if_needed(direction)
-	move_and_slide()
 	
 	# setting up variables for next frame
-	if not is_on_floor():
-		was_in_air = true
-		
 	if direction and not dashing:
 		last_facing_direction = direction
-	
+	if not is_on_floor():
+		was_in_air = true
 	was_dashing = dashing
 	
 func update_sprite_animation(direction: float, jumping_pressed: bool, double_jumping_pressed: bool, dashing_pressed: bool):
+	if not alive:
+		return
+	
 	if not is_on_floor():
 		if double_jumping_pressed:
 			animated_sprite.play("jump_start")
@@ -161,3 +166,11 @@ func _on_animated_sprite_2d_animation_finished():
 
 func bool_to_str(b: bool):
 	return "True" if b else "False"
+
+func _on_level_player_collision_spike():
+	die()
+	
+func die():
+	animated_sprite.play("death")
+	alive = false
+	velocity.x = 0

@@ -421,7 +421,9 @@ shape = SubResource("CapsuleShape2D_vlvt3")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_yhl78")
-animation = &"falling"
+animation = &"death"
+frame = 11
+frame_progress = 1.0
 
 [node name="DashTimer" type="Timer" parent="."]
 one_shot = true
