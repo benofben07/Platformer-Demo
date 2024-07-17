@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=3 uid="uid://bpcpvulmaa1ps"]
+[gd_scene load_steps=64 format=3 uid="uid://bpcpvulmaa1ps"]
 
 [ext_resource type="Script" path="res://scene/player.gd" id="1_82118"]
 [ext_resource type="Texture2D" uid="uid://c3l7s51gia12q" path="res://asset/character/char_blue_1.png" id="1_vmgbd"]
@@ -6,6 +6,38 @@
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vlvt3"]
 radius = 8.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_by7d2"]
+atlas = ExtResource("1_vmgbd")
+region = Rect2(0, 56, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_06ykk"]
+atlas = ExtResource("1_vmgbd")
+region = Rect2(56, 56, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cwq0e"]
+atlas = ExtResource("1_vmgbd")
+region = Rect2(112, 56, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xm3l7"]
+atlas = ExtResource("1_vmgbd")
+region = Rect2(168, 56, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cpc8f"]
+atlas = ExtResource("1_vmgbd")
+region = Rect2(224, 56, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3r2ay"]
+atlas = ExtResource("1_vmgbd")
+region = Rect2(280, 56, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m1lqo"]
+atlas = ExtResource("1_vmgbd")
+region = Rect2(336, 56, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j0v1o"]
+atlas = ExtResource("1_vmgbd")
+region = Rect2(392, 56, 56, 56)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ji4kh"]
 atlas = ExtResource("2_ynhk5")
@@ -211,6 +243,35 @@ region = Rect2(392, 112, 56, 56)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_by7d2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_06ykk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cwq0e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xm3l7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cpc8f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3r2ay")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m1lqo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j0v1o")
+}],
+"loop": true,
+"name": &"attack",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_ji4kh")
 }, {
 "duration": 1.0,
@@ -412,6 +473,7 @@ animations = [{
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_82118")
+attack_time = 0.9
 
 [node name="Camera2D" type="Camera2D" parent="."]
 
@@ -421,11 +483,13 @@ shape = SubResource("CapsuleShape2D_vlvt3")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_yhl78")
-animation = &"death"
-frame = 11
-frame_progress = 1.0
+animation = &"attack"
+frame_progress = 0.745284
 
 [node name="DashTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="AttackTimer" type="Timer" parent="."]
 one_shot = true
 
 [connection signal="animation_finished" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]

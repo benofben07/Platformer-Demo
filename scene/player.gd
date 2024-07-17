@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 @export var speed = 300.0
 @export var dashing_time = 0.4
+@export var attack_time = 0.4
 @export var dashing_speed = 450.0
 @export var jump_velocity = -350.0
 @export var double_jump_velocity = -400.0
@@ -11,6 +12,7 @@ var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var dash_timer: Timer = $DashTimer
+@onready var attack_timer: Timer = $AttackTimer
 
 var jumping: bool = false
 var double_jumping: bool = false
@@ -21,7 +23,9 @@ var was_dashing: bool = false
 var last_facing_direction: float = 1.0
 var dashing_direction: float = 1.0
 var dash_ending_animation_in_progress: bool = false
+var attacking_animation_in_progress: bool = false
 var alive: bool = true
+var attacking: bool = false
 
 func _physics_process(delta):
 	if alive:
@@ -46,9 +50,12 @@ func handle_movement(delta: float):
 		# dashing stops at this frame
 	if dashing and dash_timer.is_stopped():
 		dashing = false
+	if attacking and attack_timer.is_stopped():
+		attacking = false
 	
 	var jumping_pressed = Input.is_action_just_pressed("jump")
 	var dashing_pressed = Input.is_action_just_pressed("dash")
+	var attack_pressed = Input.is_action_just_pressed("attack")
 	var double_jumping_pressed: bool = false
 	
 	# jump
@@ -80,11 +87,15 @@ func handle_movement(delta: float):
 		velocity.x = last_facing_direction * dashing_speed
 	
 	# dashing
-	if dashing_pressed and not dashing and not jumping:
+	if dashing_pressed and not dashing and not jumping and not attacking:
 		dash_timer.start(dashing_time)
 		dashing = true
 		velocity.x = direction * dashing_speed
 		landing = false
+		
+	if attack_pressed and not attacking and not jumping and not dashing:
+		attack_timer.start(attack_time)
+		attacking = true
 	
 	# movement
 	if direction and not landing and not dashing:
@@ -93,7 +104,7 @@ func handle_movement(delta: float):
 	elif not dashing:
 		velocity.x = move_toward(velocity.x, 0, speed)
 	
-	update_sprite_animation(direction, jumping_pressed, double_jumping_pressed, dashing_pressed)
+	update_sprite_animation(direction, jumping_pressed, double_jumping_pressed, dashing_pressed, attack_pressed)
 	flip_character_sprite_if_needed(direction)
 	
 	# setting up variables for next frame
@@ -103,7 +114,7 @@ func handle_movement(delta: float):
 		was_in_air = true
 	was_dashing = dashing
 	
-func update_sprite_animation(direction: float, jumping_pressed: bool, double_jumping_pressed: bool, dashing_pressed: bool):
+func update_sprite_animation(direction: float, jumping_pressed: bool, double_jumping_pressed: bool, dashing_pressed: bool, attack_pressed: bool):
 	if not alive:
 		return
 	
@@ -118,7 +129,14 @@ func update_sprite_animation(direction: float, jumping_pressed: bool, double_jum
 	if dashing_pressed and not was_dashing:
 		animated_sprite.play("dash_start")
 		return
-	
+		
+	if attack_pressed:
+		animated_sprite.play("attack")
+		return
+		
+	# lock attacking animation when not moving
+	if attacking and not direction:
+		return
 	# lock dashing animation
 	if dashing:
 		return
@@ -135,8 +153,10 @@ func update_sprite_animation(direction: float, jumping_pressed: bool, double_jum
 	if jumping_pressed:
 		animated_sprite.play("jump_start")
 		return
+		
 
-	if not direction and not dash_ending_animation_in_progress:
+
+	if not direction and not dash_ending_animation_in_progress and not attacking:
 		animated_sprite.play("idle")
 		return
 
